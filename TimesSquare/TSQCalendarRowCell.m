@@ -42,9 +42,19 @@
     return self;
 }
 
+- (UIFont *)dayOfMonthFont
+{
+    return [UIFont boldSystemFontOfSize:19.0f];
+}
+
+- (UIColor *)todayTextColor
+{
+    return [UIColor whiteColor];
+}
+
 - (void)configureButton:(UIButton *)button;
 {
-    button.titleLabel.font = [UIFont boldSystemFontOfSize:19.f];
+    button.titleLabel.font = [self dayOfMonthFont];
     button.titleLabel.shadowOffset = self.shadowOffset;
     button.adjustsImageWhenDisabled = NO;
     [button setTitleColor:self.textColor forState:UIControlStateNormal];
@@ -73,7 +83,7 @@
         [notThisMonthButtons addObject:button];
         [self.contentView addSubview:button];
         [self configureButton:button];
-
+        [button setTitleColor:[self.textColor colorWithAlphaComponent:0.5f] forState:UIControlStateDisabled];
         button.enabled = NO;
         UIColor *backgroundPattern = [UIColor colorWithPatternImage:[self notThisMonthBackgroundImage]];
         button.backgroundColor = backgroundPattern;
@@ -88,7 +98,7 @@
     [self configureButton:self.todayButton];
     [self.todayButton addTarget:self action:@selector(todayButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     
-    [self.todayButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.todayButton setTitleColor:[self todayTextColor] forState:UIControlStateNormal];
     [self.todayButton setBackgroundImage:[self todayBackgroundImage] forState:UIControlStateNormal];
     [self.todayButton setTitleShadowColor:[UIColor colorWithWhite:0.0f alpha:0.75f] forState:UIControlStateNormal];
 
@@ -135,6 +145,7 @@
         NSString *title = [self.dayFormatter stringFromDate:date];
         NSString *accessibilityLabel = [self.accessibilityFormatter stringFromDate:date];
         [self.dayButtons[index] setTitle:title forState:UIControlStateNormal];
+        [self.dayButtons[index] setTitle:title forState:UIControlStateDisabled];
         [self.dayButtons[index] setAccessibilityLabel:accessibilityLabel];
         [self.notThisMonthButtons[index] setTitle:title forState:UIControlStateNormal];
         [self.notThisMonthButtons[index] setTitle:title forState:UIControlStateDisabled];
@@ -204,7 +215,13 @@
     
     [super layoutSubviews];
     
-    self.backgroundView.frame = self.bounds;
+    // Size the background view with horizontal insets
+    CGRect bounds = self.bounds;
+    UIEdgeInsets insets = self.calendarView.contentInset;
+    CGRect insetRect = UIEdgeInsetsInsetRect(bounds, insets);
+    insetRect.origin.y = bounds.origin.y;
+    insetRect.size.height = bounds.size.height;
+    self.backgroundView.frame = insetRect;
 }
 
 - (void)layoutViewsForColumnAtIndex:(NSUInteger)index inRect:(CGRect)rect;
@@ -244,9 +261,9 @@
     
     if (newIndexOfSelectedButton >= 0) {
         self.selectedButton.hidden = NO;
-        NSString *newTitle = [self.dayButtons[newIndexOfSelectedButton] currentTitle];
-        [self.selectedButton setTitle:newTitle forState:UIControlStateNormal];
-        [self.selectedButton setTitle:newTitle forState:UIControlStateDisabled];
+		NSString *newTitle = [self.dayButtons[newIndexOfSelectedButton] currentTitle];
+		[self.selectedButton setTitle:newTitle forState:UIControlStateNormal];
+		[self.selectedButton setTitle:newTitle forState:UIControlStateDisabled];
         [self.selectedButton setAccessibilityLabel:[self.dayButtons[newIndexOfSelectedButton] accessibilityLabel]];
     } else {
         self.selectedButton.hidden = YES;
