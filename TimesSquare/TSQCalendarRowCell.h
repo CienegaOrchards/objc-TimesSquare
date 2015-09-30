@@ -24,12 +24,16 @@
 @property (nonatomic, weak, readonly) UIFont *dayOfMonthFont;
 
 
+@property (nonatomic, weak, readonly) UIFont *subtitleFont;
+
+
 /** The text color for a day that's "today".
 
 This is white by default.
 */
 @property (nonatomic, weak, readonly) UIColor *todayTextColor;
 
+@property (nonatomic, weak, readonly) UIColor *subtitleTextColor;
 
 /** @name Images */
 
@@ -72,6 +76,7 @@ This is white by default.
  You may find yourself using a different background image or laying out differently in the last row.
  */
 @property (nonatomic, getter = isBottomRow) BOOL bottomRow;
+
 
 /** Method to select a specific date within the week.
 

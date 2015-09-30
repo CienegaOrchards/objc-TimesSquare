@@ -105,13 +105,13 @@
 - (void)setFirstDate:(NSDate *)firstDate;
 {
     // clamp to the beginning of its month
-    _firstDate = [self clampDate:firstDate toComponents:NSMonthCalendarUnit|NSYearCalendarUnit];
+    _firstDate = [self clampDate:firstDate toComponents:NSCalendarUnitMonth|NSCalendarUnitYear];
 }
 
 - (void)setLastDate:(NSDate *)lastDate;
 {
     // clamp to the end of its month
-    NSDate *firstOfMonth = [self clampDate:lastDate toComponents:NSMonthCalendarUnit|NSYearCalendarUnit];
+    NSDate *firstOfMonth = [self clampDate:lastDate toComponents:NSCalendarUnitMonth|NSCalendarUnitYear];
     
     NSDateComponents *offsetComponents = [[NSDateComponents alloc] init];
     offsetComponents.month = 1;
@@ -122,7 +122,7 @@
 - (void)setSelectedDate:(NSDate *)newSelectedDate;
 {
     // clamp to beginning of its day
-    NSDate *startOfDay = [self clampDate:newSelectedDate toComponents:NSDayCalendarUnit|NSMonthCalendarUnit|NSYearCalendarUnit];
+    NSDate *startOfDay = [self clampDate:newSelectedDate toComponents:NSCalendarUnitDay|NSCalendarUnitMonth|NSCalendarUnitYear];
     
     if ([self.delegate respondsToSelector:@selector(calendarView:shouldSelectDate:)] && ![self.delegate calendarView:self shouldSelectDate:startOfDay]) {
         return;
@@ -158,6 +158,18 @@
   [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:section] atScrollPosition:UITableViewScrollPositionTop animated:animated];
 }
 
+
+
+- (void)scrollDate:(NSDate *)date toPosition:(UITableViewScrollPosition)position animated:(BOOL)animated {
+    NSIndexPath *cellPath = [self indexPathForRowAtDate:date];
+
+    [self.tableView scrollToRowAtIndexPath:cellPath
+                          atScrollPosition:position
+                                  animated:animated];
+}
+
+
+
 - (TSQCalendarMonthHeaderCell *)makeHeaderCellWithIdentifier:(NSString *)identifier;
 {
     TSQCalendarMonthHeaderCell *cell = [[[self headerCellClass] alloc] initWithCalendar:self.calendar reuseIdentifier:identifier];
@@ -182,7 +194,7 @@
 
 - (NSInteger)sectionForDate:(NSDate *)date;
 {
-  return [self.calendar components:NSMonthCalendarUnit fromDate:self.firstDate toDate:date options:0].month;
+  return [self.calendar components:NSCalendarUnitMonth fromDate:self.firstDate toDate:date options:0].month;
 }
 
 - (NSIndexPath *)indexPathForRowAtDate:(NSDate *)date;
@@ -194,8 +206,8 @@
     NSInteger section = [self sectionForDate:date];
     NSDate *firstOfMonth = [self firstOfMonthForSection:section];
     
-    NSInteger firstWeek = [self.calendar components:NSWeekOfMonthCalendarUnit fromDate:firstOfMonth].weekOfMonth;
-    NSInteger targetWeek = [self.calendar components:NSWeekOfMonthCalendarUnit fromDate:date].weekOfMonth;
+    NSInteger firstWeek = [self.calendar components:NSCalendarUnitWeekOfMonth fromDate:firstOfMonth].weekOfMonth;
+    NSInteger targetWeek = [self.calendar components:NSCalendarUnitWeekOfMonth fromDate:date].weekOfMonth;
     
     return [NSIndexPath indexPathForRow:targetWeek - firstWeek inSection:section];
 }
@@ -233,12 +245,15 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView;
 {
-    return 1 + [self.calendar components:NSMonthCalendarUnit fromDate:self.firstDate toDate:self.lastDate options:0].month;
+    return 1 + [self.calendar components:NSCalendarUnitMonth fromDate:self.firstDate toDate:self.lastDate options:0].month;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section;
 {
     NSDate *firstOfMonth = [self firstOfMonthForSection:section];
+    
+    // using the new calendar units, even though they are available in iOS 7.0, don't actually work for this calculation
+    // on iOS 7.  So we can't use the new units here.
     NSRange rangeOfWeeks = [self.calendar rangeOfUnit:NSWeekCalendarUnit inUnit:NSMonthCalendarUnit forDate:firstOfMonth];
     return rangeOfWeeks.length;
 }
@@ -261,7 +276,7 @@
 {
     NSDate *firstOfMonth = [self firstOfMonthForSection:indexPath.section];
     [(TSQCalendarCell *)cell setFirstOfMonth:firstOfMonth];
-    NSInteger ordinalityOfFirstDay = [self.calendar ordinalityOfUnit:NSDayCalendarUnit inUnit:NSWeekCalendarUnit forDate:firstOfMonth];
+    NSInteger ordinalityOfFirstDay = [self.calendar ordinalityOfUnit:NSCalendarUnitDay inUnit:NSCalendarUnitWeekOfMonth forDate:firstOfMonth];
     NSDateComponents *dateComponents = [NSDateComponents new];
     dateComponents.day = 1 - ordinalityOfFirstDay;
     dateComponents.weekOfMonth = indexPath.row;

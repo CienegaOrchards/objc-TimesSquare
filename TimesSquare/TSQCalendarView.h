@@ -97,12 +97,25 @@
  */
 @property (nonatomic, strong) Class rowCellClass;
 
+// Return all(?) shift notes
+@property (nonatomic, readonly) NSArray *shiftNotes;
+
 /** Scrolls the receiver until the specified date month is completely visible.
 
  @param date A date that identifies the month that will be visible.
  @param animated YES if you want to animate the change in position, NO if it should be immediate.
  */
 - (void)scrollToDate:(NSDate *)date animated:(BOOL)animated;
+
+
+
+/** Scrolls the receiver until the specified date is at the specified position in the view.
+
+@param date A date that identifies the month that will be visible.
+@param position A UITableViewScroll Position, determining the position of the date after scroll is finished.
+@param animated YES if you want to animate the change in position, NO if it should be immediate.
+*/
+- (void)scrollDate:(NSDate *)date toPosition:(UITableViewScrollPosition)position animated:(BOOL)animated;
 
 @end
 
@@ -123,6 +136,16 @@
  @return Whether or not the date is selectable.
  */
 - (BOOL)calendarView:(TSQCalendarView *)calendarView shouldSelectDate:(NSDate *)date;
+
+- (NSString*)calendarView: (TSQCalendarView *)calendarView subtitleForDate: (NSDate*) date;
+
+- (NSString*)calendarView: (TSQCalendarView *)calendarView subtitleTrailingSymbolForDate: (NSDate*) date;
+
+- (UIColor*)calendarView: (TSQCalendarView *)calendarView dateColorForDate: (NSDate*) date;
+
+- (UIColor*)calendarView: (TSQCalendarView *)calendarView disabledDateColorForDate: (NSDate*) date;
+
+- (UIColor*)calendarView: (TSQCalendarView *)calendarView subtitleColorForDate: (NSDate*) date;
 
 /** Tells the delegate that a particular date was selected.
  

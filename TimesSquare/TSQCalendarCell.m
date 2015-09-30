@@ -55,7 +55,7 @@
 {
     static NSUInteger daysInWeek = 0;
     if (daysInWeek == 0) {
-        daysInWeek = [self.calendar maximumRangeOfUnit:NSWeekdayCalendarUnit].length;
+        daysInWeek = [self.calendar maximumRangeOfUnit:NSCalendarUnitWeekday].length;
     }
     return daysInWeek;
 }
@@ -97,7 +97,7 @@
     CGFloat extraSpace = (CGRectGetWidth(insetRect) - (self.daysInWeek - 1) * self.columnSpacing) - (increment * self.daysInWeek);
     
     // Divide the extra space out over the outer columns in increments of the column spacing
-    NSInteger columnsWithExtraSpace = (NSInteger)fabsf(extraSpace / self.columnSpacing);
+    NSInteger columnsWithExtraSpace = (NSInteger)fabs(extraSpace / self.columnSpacing);
     NSInteger columnsOnLeftWithExtraSpace = columnsWithExtraSpace / 2;
     NSInteger columnsOnRightWithExtraSpace = columnsWithExtraSpace - columnsOnLeftWithExtraSpace;
     
@@ -118,6 +118,7 @@
         [self layoutViewsForColumnAtIndex:displayIndex inRect:columnBounds];
         start += width + self.columnSpacing;
     }
+    
 
 }
 
